@@ -1,12 +1,42 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import initialCards from "./data/initialCard";
+import Board from "./components/Board";
+import GameInfo from "./components/GameInfo";
 
 function App() {
   const [cards, setCards] = useState(initialCards);
   const [flippedCards, setFlippedCards] = useState([]);
   const [matchedCards, setMatchedCards] = useState([]);
   const [isDisabled, setIsDisabled] = useState(false);
+
+  useEffect(() => {
+    setCards(shuffleCards(initialCards));
+  }, []);
+
+  useEffect(() => {
+    if (flippedCards.length === 2) {
+      setIsDisabled(true);
+      const [first, second] = flippedCards;
+      if (cards[first].image === cards[second].image) {
+        setMatchedCards([...matchedCards, first, second]);
+        setFlippedCards([]);
+        setIsDisabled(false);
+      } else {
+        setTimeout(() => {
+          const newCards = cards.map((card, index) => {
+            if (index === first || index === second) {
+              card.isFlipped = false;
+            }
+            return card;
+          });
+          setCards(newCards);
+          setFlippedCards([]);
+          setIsDisabled(false);
+        }, 1000);
+      }
+    }
+  }, [cards, flippedCards, matchedCards]);
 
   const handleCardClick = (index) => {
     if (
@@ -33,10 +63,16 @@ function App() {
   };
 
   const shuffleCards = (cards) => {
-    return cards.sort(()=> Math.random() - 0.5)
-  }
+    return cards.sort(() => Math.random() - 0.5);
+  };
 
-  return <></>;
+  return (
+    <div className="app">
+      <h1>Memory Game</h1>
+      <Board cards={cards} onCardClick={handleCardClick} />
+      <GameInfo matchedCards={matchedCards} onReset={resetGame} />
+    </div>
+  );
 }
 
 export default App;
