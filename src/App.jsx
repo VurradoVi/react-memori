@@ -38,7 +38,22 @@ function App() {
     }
   }, [cards, flippedCards, matchedCards]);
 
+  useEffect(() => {
+    if (matchedCards.length === 12) {
+      setTimeout(() => {
+        const resetCards = initialCards.map((card) => ({
+          ...card,
+          isFlipped: false,
+        }));
+        setCards(shuffleCards(resetCards));
+        setFlippedCards([]);
+        setMatchedCards([]);
+        setIsDisabled(false);
+      }, 2000);
+    }
+  }, [cards, flippedCards, matchedCards]);
   const handleCardClick = (index) => {
+    console.log(matchedCards.length);
     if (
       isDisabled ||
       flippedCards.includes(index) ||
@@ -56,7 +71,11 @@ function App() {
   };
 
   const resetGame = () => {
-    setCards(shuffleCards(initialCards));
+    const resetCards = initialCards.map((card) => ({
+      ...card,
+      isFlipped: false,
+    }));
+    setCards(shuffleCards(resetCards));
     setFlippedCards([]);
     setMatchedCards([]);
     setIsDisabled(false);
